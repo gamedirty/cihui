@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>词绘 · 一词一图学语言</title>
+<style>
+:root{--bg:#f6f1e7;--ink:#191a1c;--muted:#8b8678;--line:#e9e3d3;--shadow:0 1px 2px rgba(60,50,20,.06),0 10px 30px -12px rgba(60,50,20,.2)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;display:flex;min-height:100vh;align-items:center;justify-content:center}
+.wrap{max-width:880px;padding:60px 28px;width:100%}
+h1{font-size:clamp(30px,5vw,48px);font-weight:800}
+.sub{color:var(--muted);margin-top:10px;font-size:15px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:44px}
+a.card{background:#fff;border:1px solid rgba(233,227,211,.7);border-radius:22px;padding:30px 28px;text-decoration:none;color:inherit;display:block;transition:.18s}
+a.card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.tag{font-size:12px;color:var(--muted);letter-spacing:.05em}
+.name{font-size:24px;font-weight:750;margin-top:12px}
+.name.en{font-size:26px}
+.desc{color:var(--muted);font-size:13.5px;margin-top:10px;line-height:1.7}
+.pill{display:inline-block;margin-top:16px;background:#141414;color:#fff;border-radius:999px;font-size:12.5px;padding:6px 16px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tag">词绘 CIHUI · 一词一图</div>
+  <h1>每个词，都有一幅画。</h1>
+  <p class="sub">两个方向的词汇图鉴：中文用户学英文 · 英文用户学中文。全部插画由即梦 5.0 生成。</p>
+  <div class="grid">
+    <a class="card" href="english/index.html">
+      <div class="tag">FOR CHINESE LEARNERS OF ENGLISH</div>
+      <div class="name">英文单词图鉴</div>
+      <div class="desc">1048 个常用英文单词 · 音标 + 中文释义 + 双语例句<br>扁平教育卡通风插画 · A1–B2 · 18 个主题分类 · 一键发音</div>
+      <span class="pill">进入 EN →</span>
+    </a>
+    <a class="card" href="chinese/index.html">
+      <div class="tag">FOR ENGLISH LEARNERS OF CHINESE</div>
+      <div class="name">中文词语图鉴</div>
+      <div class="desc">980 个常用中文词语 · 拼音 + 英文释义 + 双语例句<br>水彩绘本风插画 · HSK 1–6 · 18 个主题分类 · 一键发音</div>
+      <span class="pill">进入中文 →</span>
+    </a>
+  </div>
+</div>
+</body>
+</html>

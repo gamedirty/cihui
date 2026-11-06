@@ -1,0 +1,7 @@
+_sample/
+_aistudio_test/
+aistudio/
+build/*.bak
+build/failed.json
+build/aistudio_watch.log
+*.log

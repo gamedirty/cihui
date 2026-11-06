@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>词绘 · 每个词，都有一幅画。</title>
+<style>
+:root{
+  --bg:#f6f1e7; --card:#ffffff; --ink:#191a1c; --muted:#8b8678; --line:#e9e3d3;
+  --chip:#ffffff; --chip-ink:#4a463c; --accent:#141414; --blue:#3b82c4; --green:#3f9d6b;
+  --star:#e8a33d; --shadow:0 1px 2px rgba(60,50,20,.06),0 8px 24px -12px rgba(60,50,20,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1280px;margin:0 auto;padding:0 28px}
+a{color:inherit}
+
+/* ---------- hero ---------- */
+.hero{padding:34px 0 6px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:34px}
+.kicker{font-size:13px;color:var(--muted);letter-spacing:.02em}
+.back{font-size:13px;color:var(--muted);text-decoration:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 14px;transition:.15s}
+.back:hover{color:var(--ink);box-shadow:var(--shadow)}
+.hero-row{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+h1{font-size:clamp(30px,4.6vw,52px);font-weight:800;letter-spacing:.01em;line-height:1.15}
+.sub{margin-top:10px;color:var(--muted);font-size:14px}
+.search{position:relative;min-width:300px;flex:0 1 380px}
+.search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:17px;height:17px;stroke:var(--muted)}
+.search input{width:100%;border:1px solid var(--line);background:#fff;border-radius:999px;padding:12px 20px 12px 44px;font-size:14.5px;outline:none;transition:.15s;color:var(--ink);box-shadow:var(--shadow)}
+.search input:focus{border-color:#cfc7b2}
+.search input::placeholder{color:#b3ad9d}
+
+/* ---------- chips ---------- */
+.chips{display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;padding:14px 2px 6px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--chip);color:var(--chip-ink);border-radius:999px;padding:6.5px 16px;font-size:13.5px;cursor:pointer;white-space:nowrap;transition:.14s;user-select:none}
+.chip:hover{border-color:#cbc3ae;box-shadow:var(--shadow)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip .n{opacity:.55;font-size:12px;margin-left:5px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:10px 2px 14px;flex-wrap:wrap}
+.toolbar .right{display:flex;align-items:center;gap:12px;margin-left:auto}
+.count{color:var(--muted);font-size:13px;white-space:nowrap}
+.progress{color:var(--muted);font-size:12.5px;white-space:nowrap}
+.vt{display:flex;border:1px solid var(--line);background:#fff;border-radius:999px;overflow:hidden}
+.vt button{border:0;background:transparent;padding:7px 12px;cursor:pointer;color:var(--muted);display:flex;align-items:center}
+.vt button svg{width:16px;height:16px;stroke:currentColor}
+.vt button.on{background:var(--accent);color:#fff}
+
+/* ---------- cards ---------- */
+main{padding-bottom:80px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:18px}
+.card{background:var(--card);border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(60,50,20,.05);cursor:pointer;transition:.18s;display:flex;flex-direction:column;border:1px solid rgba(233,227,211,.6)}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.pic{position:relative;aspect-ratio:1/1;overflow:hidden;background:#f3eddd}
+.pic img{width:100%;height:100%;object-fit:cover;display:block}
+.lvl{position:absolute;top:10px;left:10px;background:rgba(20,20,20,.78);color:#fff;font-size:11px;padding:3px 10px;border-radius:999px;letter-spacing:.03em;backdrop-filter:blur(2px)}
+.faved{position:absolute;top:10px;right:10px;color:var(--star);filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
+.faved svg{width:16px;height:16px;fill:currentColor;stroke:none}
+.cbody{padding:14px 16px 14px;display:flex;flex-direction:column;gap:3px;flex:1}
+.trow{display:flex;align-items:center;gap:8px}
+.term{font-size:19px;font-weight:750;letter-spacing:.01em}
+.term.zh{font-size:22px;font-weight:700}
+.speak{margin-left:auto;border:0;background:#f6f1e6;color:#8b8678;width:30px;height:30px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;flex:0 0 auto}
+.speak:hover{background:#141414;color:#fff}
+.speak svg{width:15px;height:15px;stroke:currentColor;fill:none}
+.phon{color:var(--muted);font-size:12.5px}
+.gloss{font-size:14px;font-weight:600;color:#3e3a30;margin-top:1px}
+.ex{font-size:13px;color:#57534a;margin-top:7px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.exTr{font-size:12px;color:#9b9686;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.foot{display:flex;align-items:center;gap:8px;margin-top:11px;padding-top:10px;border-top:1px dashed #efe9da}
+.stbtn{border:1px solid var(--line);background:#fbf8f1;border-radius:999px;font-size:11.5px;padding:3.5px 12px;cursor:pointer;color:var(--muted);transition:.15s;white-space:nowrap}
+.stbtn:hover{border-color:#cbc3ae;color:var(--ink)}
+.stbtn.s1{background:#eef4fb;border-color:#d4e4f4;color:var(--blue)}
+.stbtn.s2{background:#eef7f1;border-color:#cfe8da;color:var(--green)}
+.favbtn{margin-left:auto;border:0;background:none;cursor:pointer;color:#c9c3b2;display:flex;padding:3px;transition:.15s}
+.favbtn:hover{color:var(--star)}
+.favbtn.on{color:var(--star)}
+.favbtn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6}
+.favbtn.on svg{fill:currentColor;stroke:currentColor}
+
+/* list view */
+.cards.list{display:flex;flex-direction:column;gap:10px}
+.cards.list .card{flex-direction:row;align-items:stretch;border-radius:14px}
+.cards.list .pic{width:86px;min-width:86px;aspect-ratio:auto;border-radius:0}
+.cards.list .lvl{top:6px;left:6px;font-size:10px;padding:2px 8px}
+.cards.list .cbody{padding:10px 16px;gap:1px}
+.cards.list .ex{margin-top:2px;-webkit-line-clamp:1}
+.cards.list .exTr{-webkit-line-clamp:1}
+.cards.list .foot{margin-top:6px;padding-top:7px}
+.cards.list .term{font-size:17px}
+.empty{padding:70px 0;text-align:center;color:var(--muted)}
+
+/* ---------- modal ---------- */
+.mask{position:fixed;inset:0;background:rgba(28,24,14,.46);display:none;align-items:center;justify-content:center;z-index:50;padding:26px;backdrop-filter:blur(3px)}
+.mask.show{display:flex}
+.modal{background:var(--card);border-radius:22px;max-width:900px;width:100%;max-height:92vh;overflow:auto;position:relative;box-shadow:0 30px 80px -20px rgba(0,0,0,.4)}
+.modal .mimg{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;border-radius:22px 22px 0 0}
+.mgrid{display:grid;grid-template-columns:minmax(0,46%) 1fr}
+.mgrid .mimg{height:100%;border-radius:22px 0 0 22px}
+.mtxt{padding:30px 30px 26px;display:flex;flex-direction:column;gap:10px}
+.mtxt .trow .term{font-size:30px}
+.mtxt .term.zh{font-size:36px}
+.mtxt .phon{font-size:15px}
+.mtxt .gloss{font-size:17px}
+.mex{background:#faf6ec;border-radius:14px;padding:14px 16px;margin-top:6px}
+.mex .lab{font-size:11px;color:#b3ad9d;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.mex .ex{font-size:14.5px;color:#33312a;display:block;-webkit-line-clamp:unset}
+.mex .exTr{font-size:13px;display:block;margin-top:3px}
+.mnav{display:flex;gap:10px;margin-top:auto;padding-top:18px}
+.mnav button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 18px;font-size:13px;cursor:pointer;color:var(--chip-ink);transition:.15s}
+.mnav button:hover{background:#141414;color:#fff;border-color:#141414}
+.mclose{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.92);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);color:#333;z-index:2}
+.mclose svg{width:16px;height:16px;stroke:currentColor}
+@media (max-width:760px){
+  .mgrid{grid-template-columns:1fr}
+  .mgrid .mimg{border-radius:22px 22px 0 0;height:auto}
+  .cards{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+  .hero-row{align-items:stretch}
+  .search{min-width:0;flex:1 1 100%}
+}
+@media (prefers-reduced-motion:no-preference){
+  .card,.stbtn,.favbtn,.speak{transition-duration:.18s}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="topbar">
+      <div class="kicker" id="kicker"></div>
+      <a class="back" href="../index.html" id="back"></a>
+    </div>
+    <div class="hero-row">
+      <div>
+        <h1 id="title"></h1>
+        <p class="sub" id="sub"></p>
+      </div>
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" autocomplete="off" spellcheck="false">
+      </div>
+    </div>
+    <div class="chips" id="levelChips"></div>
+    <div class="chips" id="catChips"></div>
+    <div class="toolbar">
+      <div class="chips" id="stChips" style="padding:0"></div>
+      <div class="right">
+        <span class="progress" id="progress"></span>
+        <span class="count" id="count"></span>
+        <div class="vt">
+          <button id="vGrid" class="on" title=""><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>
+          <button id="vList" title=""><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+<main class="wrap"><div id="cards" class="cards"></div><div id="empty" class="empty" style="display:none"></div></main>
+
+<div class="mask" id="mask">
+  <div class="modal" id="modal">
+    <button class="mclose" id="mClose" title=""><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <div class="mgrid">
+      <img class="mimg" id="mImg" alt="">
+      <div class="mtxt">
+        <div class="trow"><span class="term" id="mTerm"></span><button class="speak" id="mSpeak" style="width:36px;height:36px"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg></button></div>
+        <div class="phon" id="mPhon"></div>
+        <div class="gloss" id="mGloss"></div>
+        <div class="mex"><div class="lab" id="mLab"></div><div class="ex" id="mEx"></div><div class="exTr" id="mExTr"></div><button class="stbtn" id="mSpeakEx" style="margin-top:9px"></button></div>
+        <div class="foot" style="border-top:0;padding:0;margin-top:2px"><span class="stbtn" id="mSt"></span><span class="count" id="mLvl" style="margin-left:6px"></span></div>
+        <div class="mnav"><button id="mPrev"></button><button id="mNext"></button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+const D = window.DATA, U = D.ui;
+const $ = s => document.querySelector(s);
+const LS = "cihui:" + D.site;
+let prog = {};
+try { prog = JSON.parse(localStorage.getItem(LS) || "{}"); } catch(e){ prog = {}; }
+const save = () => localStorage.setItem(LS, JSON.stringify(prog));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const TONE_MAP = {"ā":"a","á":"a","ǎ":"a","à":"a","ē":"e","é":"e","ě":"e","è":"e","ī":"i","í":"i","ǐ":"i","ì":"i","ō":"o","ó":"o","ǒ":"o","ò":"o","ū":"u","ú":"u","ǔ":"u","ù":"u","ǖ":"v","ǘ":"v","ǚ":"v","ǜ":"v","ü":"v"};
+const stripTone = s => s.normalize("NFC").replace(/[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü]/g, c => TONE_MAP[c]);
+const stOf = id => (prog[id] && prog[id].s) || 0;
+const favOf = id => !!(prog[id] && prog[id].f);
+const CYCLE_TIP = U.stTip;
+
+const STAR_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9z"/></svg>';
+const STAR_O   = '<svg viewBox="0 0 24 24"><path d="M12 3.2l2.7 5.4 6 .9-4.3 4.2 1 6-5.4-2.8-5.4 2.8 1-6-4.3-4.2 6-.9z"/></svg>';
+const SPK_SVG  = '<svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+
+let view = "grid";
+let f = { q:"", level:"all", cat:"all", status:"all" };
+
+/* init static UI */
+$("#kicker").textContent = U.kicker;
+$("#title").textContent = U.title;
+$("#sub").textContent = U.sub;
+$("#q").placeholder = U.searchPh;
+$("#back").textContent = U.back;
+$("#empty").textContent = U.noneMsg;
+$("#vGrid").title = U.viewGrid; $("#vList").title = U.viewList;
+$("#mClose").title = U.close; $("#mLab").textContent = U.exampleLabel;
+$("#mSpeakEx").textContent = "🔊 " + U.speakSent;
+$("#mPrev").textContent = "← " + U.prev; $("#mNext").textContent = U.next + " →";
+$("#mSpeak").title = U.speakWord;
+document.title = D.site === "en" ? "词绘 · 每个词，都有一幅画。" : "Huàhuì Chinese · Every word, one picture.";
+
+/* words with ids */
+D.words.forEach((w,i)=>{ w.id = D.site + "_" + String(i+1).padStart(3,"0"); });
+const CATS = [...new Set(D.words.map(w=>w.cat))];
+
+/* counts per level/cat/status */
+const cnt = { level:{all:D.words.length}, cat:{all:D.words.length} };
+D.levels.forEach(l=>cnt.level[l]=0); CATS.forEach(c=>cnt.cat[c]=0);
+D.words.forEach(w=>{ cnt.level[w.level]++; cnt.cat[w.cat]++; });
+const stCnt = () => {
+  const c={0:0,1:0,2:0,f:0};
+  D.words.forEach(w=>{ const p=prog[w.id]||{}; if(p.s)c[p.s]=(c[p.s]||0)+1; if(p.f)c.f++; });
+  return c;
+};
+
+function chipRow(el, allLabel, items, counts, key, nameOf){
+  const mk = (val,label,extra) => {
+    const b=document.createElement("button");
+    b.className="chip"+(f[key]===val?" on":"");
+    b.innerHTML=esc(label)+(extra?`<span class="n">${extra}</span>`:"");
+    b.onclick=()=>{ f[key]=val; renderChips(); render(); };
+    el.appendChild(b);
+  };
+  el.innerHTML="";
+  mk("all", allLabel, counts.all!==undefined?counts.all:"");
+  items.forEach(it=>mk(it, nameOf?nameOf(it):it, counts[it]!==undefined?counts[it]:""));
+}
+function renderChips(){
+  chipRow($("#levelChips"), U.levelAll, D.levels, cnt.level, "level", l=>l+(D.levelDesc[l]?"·"+D.levelDesc[l]:""));
+  chipRow($("#catChips"), U.catAll, CATS, cnt.cat, "cat");
+  const st=$("#stChips"); st.innerHTML="";
+  const c=stCnt();
+  [["all",U.statuses[0],D.words.length],["new",U.statuses[1],D.words.length-(c[1]||0)-(c[2]||0)],["learning",U.statuses[2],c[1]||0],["mastered",U.statuses[3],c[2]||0],["fav",U.statuses[4],c.f]]
+  .forEach(([v,lab,n])=>{
+    const b=document.createElement("button");
+    b.className="chip"+(f.status===v?" on":"");
+    b.textContent=lab;
+    b.onclick=()=>{ f.status=v; renderChips(); render(); };
+    st.appendChild(b);
+  });
+  $("#progress").textContent = U.progressTpl.replace("{m}",c[2]||0).replace("{l}",c[1]||0).replace("{f}",c.f);
+}
+
+function filtered(){
+  const q=f.q.trim().toLowerCase();
+  const qn=(D.site==="zh" && q) ? stripTone(q) : q;
+  return D.words.filter(w=>{
+    if(f.level!=="all" && w.level!==f.level) return false;
+    if(f.cat!=="all" && w.cat!==f.cat) return false;
+    if(f.status==="fav" && !favOf(w.id)) return false;
+    if(f.status==="learning" && stOf(w.id)!==1) return false;
+    if(f.status==="mastered" && stOf(w.id)!==2) return false;
+    if(f.status==="new" && stOf(w.id)!==0) return false;
+    if(q){
+      let hay;
+      if(D.site==="en") hay=(w.term+" "+w.phon+" "+w.gloss+" "+w.ex+" "+w.exTr).toLowerCase();
+      else hay=(w.term+" "+w.phon+" "+stripTone(w.phon)+" "+w.gloss+" "+w.ex+" "+w.exTr).toLowerCase();
+      if(D.site==="zh"){ if(!hay.includes(qn) && !hay.includes(q)) return false; }
+      else if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function cardHTML(w){
+  const s=stOf(w.id), fv=favOf(w.id);
+  return `<article class="card" data-id="${w.id}">
+    <div class="pic"><img loading="lazy" src="${w.img}" alt="${esc(w.term)}">
+      <span class="lvl">${w.level}</span>${fv?`<span class="faved">${STAR_SVG}</span>`:""}</div>
+    <div class="cbody">
+      <div class="trow"><span class="term${D.site==="zh"?" zh":""}">${esc(w.term)}</span>
+        <button class="speak" data-act="speak" title="${U.speakWord}">${SPK_SVG}</button></div>
+      <div class="phon">${esc(w.phon)}${w.pos?" · "+esc(w.pos):""}</div>
+      <div class="gloss">${esc(w.gloss)}</div>
+      <div class="ex">${esc(w.ex)}</div>
+      <div class="exTr">${esc(w.exTr)}</div>
+      <div class="foot">
+        <button class="stbtn s${s}" data-act="st" title="${CYCLE_TIP[s]}">${U.statuses[s+1]}</button>
+        <button class="favbtn${fv?" on":""}" data-act="fav" title="${U.fav}">${STAR_O}</button>
+      </div>
+    </div>
+  </article>`;
+}
+
+function render(){
+  const list = filtered();
+  const box = $("#cards");
+  box.className = "cards" + (view==="list" ? " list" : "");
+  box.innerHTML = list.map(cardHTML).join("");
+  $("#empty").style.display = list.length ? "none" : "block";
+  $("#count").textContent = U.countTpl.replace("{n}", list.length);
+  box._list = list;
+}
+
+/* events */
+$("#q").addEventListener("input", e=>{ f.q=e.target.value; render(); });
+$("#vGrid").onclick=()=>{ view="grid"; $("#vGrid").classList.add("on"); $("#vList").classList.remove("on"); render(); };
+$("#vList").onclick=()=>{ view="list"; $("#vList").classList.add("on"); $("#vGrid").classList.remove("on"); render(); };
+
+function speak(text){
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang=D.speakLang; u.rate = D.site==="zh"?0.85:0.9;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+$("#cards").addEventListener("click", e=>{
+  const card=e.target.closest(".card"); if(!card) return;
+  const id=card.dataset.id, w=D.words.find(x=>x.id===id);
+  const act=e.target.closest("[data-act]");
+  if(act){
+    const a=act.dataset.act;
+    if(a==="speak"){ speak(w.term); e.stopPropagation(); return; }
+    if(a==="fav"){ const p=prog[id]||{}; p.f=!p.f; prog[id]=p; save(); renderChips(); render(); return; }
+    if(a==="st"){
+      const p=prog[id]||{}; p.s=((p.s||0)+1)%3; prog[id]=p; save(); renderChips(); render(); return;
+    }
+  }
+  openModal(w);
+});
+
+/* modal */
+let mIdx=-1, mList=[];
+function openModal(w){
+  mList=filtered(); mIdx=mList.indexOf(w);
+  fillModal(w); $("#mask").classList.add("show"); document.body.style.overflow="hidden";
+}
+function closeModal(){ $("#mask").classList.remove("show"); document.body.style.overflow=""; }
+function fillModal(w){
+  $("#mImg").src=w.img; $("#mImg").alt=w.term;
+  $("#mTerm").textContent=w.term;
+  $("#mPhon").textContent=w.phon+(w.pos?" · "+w.pos:"");
+  $("#mGloss").textContent=w.gloss;
+  $("#mEx").textContent=w.ex; $("#mExTr").textContent=w.exTr;
+  $("#mLvl").textContent=w.level+(D.levelDesc[w.level]?" · "+D.levelDesc[w.level]:"")+" · "+w.cat;
+  const s=stOf(w.id); const b=$("#mSt");
+  b.className="stbtn s"+s; b.textContent=U.statuses[s+1];
+  b.onclick=()=>{ const p=prog[w.id]||{}; p.s=((p.s||0)+1)%3; prog[w.id]=p; save(); fillModal(w); renderChips(); render(); };
+}
+$("#mClose").onclick=closeModal;
+$("#mask").addEventListener("click",e=>{ if(e.target.id==="mask") closeModal(); });
+$("#mSpeak").onclick=()=>{ if(mIdx>=0) speak(mList[mIdx].term); };
+$("#mSpeakEx").onclick=()=>{ if(mIdx>=0) speak(mList[mIdx].ex); };
+$("#mPrev").onclick=()=>{ if(mIdx>0){ mIdx--; fillModal(mList[mIdx]); } };
+$("#mNext").onclick=()=>{ if(mIdx<mList.length-1){ mIdx++; fillModal(mList[mIdx]); } };
+document.addEventListener("keydown",e=>{
+  if(!$("#mask").classList.contains("show")) return;
+  if(e.key==="Escape") closeModal();
+  if(e.key==="ArrowLeft") $("#mPrev").click();
+  if(e.key==="ArrowRight") $("#mNext").click();
+});
+
+renderChips(); render();
+</script>
+</body>
+</html>
